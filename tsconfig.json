@@ -1,14 +1,23 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "composite": true
-  },
-  "references": [
-    {
-      "path": "./tsconfig.cjs.json"
-    },
-    {
-      "path": "./tsconfig.esm.json"
-    }
-  ]
+	"compilerOptions": {
+		"target": "es2017",
+		"module": "esnext",
+		"rootDir": "./src",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"declaration": true,
+		"outDir": "./dist",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"skipLibCheck": true
+	},
+	"include": [
+		"./src"
+	],
+	"exclude": [
+		"node_modules"
+	]
 }
