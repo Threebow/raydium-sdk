@@ -10,9 +10,12 @@ export default {
 		index: "./src/index.ts"
 	},
 	output: {
-		filename: "index.js",
 		path: resolve(__dirname, "./dist"),
-		clean: true
+		filename: "index.js",
+		library: {
+			type: "module"
+		},
+		chunkFormat: "module"
 	},
 	resolve: {
 		extensions: [".ts", "..."]
@@ -30,7 +33,12 @@ export default {
 		]
 	},
 	externals: [
-		nodeExternals()
+		nodeExternals({
+			importType: "module"
+		})
 	],
-	externalsPresets: {node: true}
+	externalsPresets: {node: true},
+	experiments: {
+		outputModule: true
+	}
 }
