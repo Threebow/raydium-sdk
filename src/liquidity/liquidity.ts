@@ -1,4 +1,4 @@
-import { Connection, PublicKey, Signer, TransactionInstruction } from '@solana/web3.js'
+import { Commitment, Connection, PublicKey, Signer, TransactionInstruction } from "@solana/web3.js"
 import BN from 'bn.js'
 
 import {
@@ -322,6 +322,7 @@ export interface LiquidityInitPoolTransactionParams {
 export interface LiquidityFetchInfoParams {
   connection: Connection
   poolKeys: LiquidityPoolKeys
+  commitment: Commitment
 }
 
 /**
@@ -330,6 +331,7 @@ export interface LiquidityFetchInfoParams {
 export interface LiquidityFetchMultipleInfoParams {
   connection: Connection
   pools: LiquidityPoolKeys[]
+  commitment: Commitment
   config?: GetMultipleAccountsInfoConfig
 }
 
@@ -1964,8 +1966,8 @@ export class Liquidity extends Base {
   /**
    * Fetch liquidity pool's info
    */
-  static async fetchInfo({ connection, poolKeys }: LiquidityFetchInfoParams) {
-    const info = await this.fetchMultipleInfo({ connection, pools: [poolKeys] })
+  static async fetchInfo({ connection, poolKeys, commitment }: LiquidityFetchInfoParams) {
+    const info = await this.fetchMultipleInfo({ connection, pools: [poolKeys], commitment })
 
     logger.assertArgument(info.length === 1, `fetchInfo failed, ${info.length} pools found`, 'poolKeys.id', poolKeys.id)
 
@@ -1978,6 +1980,7 @@ export class Liquidity extends Base {
   static async fetchMultipleInfo({
     connection,
     pools,
+	commitment,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config,
   }: LiquidityFetchMultipleInfoParams): Promise<LiquidityPoolInfo[]> {
@@ -1989,6 +1992,8 @@ export class Liquidity extends Base {
       connection,
       instructions.map((i) => i.innerTransaction.instructions).flat(),
       'GetPoolData',
+	  true,
+	  commitment
     )
 
     const poolsInfo = logs.map((log) => {

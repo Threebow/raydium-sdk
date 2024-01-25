@@ -237,6 +237,7 @@ export async function simulateMultipleInstruction(
   instructions: TransactionInstruction[],
   keyword: string,
   batchRequest = true,
+  commitment?: Commitment,
 ) {
   const feePayer = new PublicKey('RaydiumSimuLateTransaction11111111111111111')
 
@@ -260,7 +261,7 @@ export async function simulateMultipleInstruction(
   let results: SimulatedTransactionResponse[] = []
 
   try {
-    results = await simulateTransaction(connection, transactions, batchRequest)
+    results = await simulateTransaction(connection, transactions, batchRequest, commitment)
     if (results.find((i) => i.err !== null)) throw Error('rpc simulateTransaction error')
   } catch (error) {
     if (error instanceof Error) {
@@ -307,10 +308,10 @@ export function parseSimulateValue(log: string, key: string) {
   return results[1]
 }
 
-export async function simulateTransaction(connection: Connection, transactions: Transaction[], batchRequest?: boolean) {
+export async function simulateTransaction(connection: Connection, transactions: Transaction[], batchRequest?: boolean, commitment?: Commitment) {
   let results: any[] = []
   if (batchRequest) {
-    const getLatestBlockhash = await connection.getLatestBlockhash()
+    const getLatestBlockhash = await connection.getLatestBlockhash(commitment)
 
     const encodedTransactions: string[] = []
     for (const transaction of transactions) {
@@ -331,7 +332,7 @@ export async function simulateTransaction(connection: Connection, transactions: 
     }
 
     const batch = encodedTransactions.map((keys) => {
-      const args = connection._buildArgs([keys], undefined, 'base64')
+      const args = connection._buildArgs([keys], commitment, 'base64')
       return {
         methodName: 'simulateTransaction',
         args,
@@ -356,6 +357,8 @@ export async function simulateTransaction(connection: Connection, transactions: 
     ).flat()
   } else {
     try {
+	  throw new Error("Cannot use deprecated method")
+		
       results = await Promise.all(
         transactions.map(async (transaction) => await (await connection.simulateTransaction(transaction)).value),
       )
