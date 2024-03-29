@@ -69,11 +69,22 @@ let modelData: StableModelLayout = {
 }
 
 export async function initStableModelLayout(connection: Connection) {
+  await initStableModelLayoutWithFactory(
+      a => connection
+          .getAccountInfo(a)
+          .then(r => r?.data ?? null)
+  )
+}
+
+export async function initStableModelLayoutWithFactory(
+    factory: (account: PublicKey) => Promise<Buffer | null>
+) {
   if (modelData.validDataCount === 0) {
-    if (connection) {
-      const acc = await connection.getAccountInfo(ModelDataPubkey)
-      if (acc) modelData = formatLayout(acc?.data)
-    }
+    const data = await factory(ModelDataPubkey)
+	  
+	if(data) {
+	  modelData = formatLayout(data)
+	}
   }
 }
 
